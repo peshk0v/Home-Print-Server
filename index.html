@@ -1,0 +1,434 @@
+```html
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, initial-scale=1.0">
+    <title>Домашний принт-сервер на Raspberry Pi | Полное руководство</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            line-height: 1.5;
+            scroll-behavior: smooth;
+        }
+
+        /* Контейнер */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        /* Анимация появления */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section {
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 6px -2px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.03);
+            padding: 1.8rem 2rem;
+            margin-bottom: 2rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            animation: fadeUp 0.5s ease-out forwards;
+            opacity: 0;
+            animation-fill-mode: forwards;
+        }
+
+        .section:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Заголовки */
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1e293b, #2d3a4f);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .subhead {
+            font-size: 1.2rem;
+            color: #475569;
+            border-left: 4px solid #3b82f6;
+            padding-left: 1rem;
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 1.25rem;
+            color: #0f172a;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin: 1.2rem 0 0.8rem 0;
+            color: #1e293b;
+        }
+
+        /* Таблицы */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #ffffff;
+            border-radius: 1rem;
+            overflow: hidden;
+            margin: 1rem 0;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        }
+
+        th, td {
+            padding: 0.9rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e9edf2;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Код и команды */
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1rem 1.2rem;
+            border-radius: 1rem;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.9rem;
+            margin: 1rem 0;
+            transition: all 0.2s;
+        }
+
+        code {
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            background: #eef2ff;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+            color: #1e40af;
+        }
+
+        pre code {
+            background: transparent;
+            padding: 0;
+            color: inherit;
+        }
+
+        /* Блоки с важной информацией */
+        .note {
+            background: #eff6ff;
+            border-left: 5px solid #3b82f6;
+            padding: 1rem 1.2rem;
+            border-radius: 1rem;
+            margin: 1rem 0;
+        }
+
+        .warning {
+            background: #fffbeb;
+            border-left: 5px solid #f59e0b;
+            padding: 1rem 1.2rem;
+            border-radius: 1rem;
+            margin: 1rem 0;
+        }
+
+        /* Список шагов */
+        .step-list {
+            list-style: none;
+            counter-reset: step-counter;
+            padding-left: 0;
+        }
+
+        .step-list li {
+            counter-increment: step-counter;
+            margin-bottom: 1rem;
+            padding-left: 2.5rem;
+            position: relative;
+        }
+
+        .step-list li::before {
+            content: counter(step-counter);
+            background: #3b82f6;
+            color: white;
+            font-weight: bold;
+            width: 1.8rem;
+            height: 1.8rem;
+            border-radius: 2rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            left: 0;
+            top: 0;
+            font-size: 0.9rem;
+        }
+
+        /* карточки для технологий */
+        .tech-grid {
+            display: flex;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+            margin: 1.5rem 0;
+        }
+
+        .tech-card {
+            background: #f9fafb;
+            flex: 1;
+            min-width: 160px;
+            padding: 1rem;
+            border-radius: 1.2rem;
+            border: 1px solid #eef2ff;
+            transition: all 0.2s;
+        }
+
+        .tech-card:hover {
+            background: white;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.03);
+            border-color: #cbd5e1;
+        }
+
+        .tech-card strong {
+            font-size: 1.2rem;
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #0f172a;
+        }
+
+        /* footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0.5rem 1rem;
+            color: #64748b;
+            border-top: 1px solid #e2e8f0;
+            margin-top: 2rem;
+        }
+
+        /* кнопки приятные */
+        a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* адаптив */
+        @media (max-width: 700px) {
+            .container {
+                padding: 1rem;
+            }
+            .section {
+                padding: 1.2rem;
+            }
+            h1 {
+                font-size: 1.9rem;
+            }
+            h2 {
+                font-size: 1.5rem;
+            }
+            table, .tech-grid {
+                font-size: 0.85rem;
+            }
+            pre {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* анимация задержки для разделов */
+        .section:nth-child(1) { animation-delay: 0.05s; }
+        .section:nth-child(2) { animation-delay: 0.1s; }
+        .section:nth-child(3) { animation-delay: 0.15s; }
+        .section:nth-child(4) { animation-delay: 0.2s; }
+        .section:nth-child(5) { animation-delay: 0.25s; }
+        .section:nth-child(6) { animation-delay: 0.3s; }
+        .section:nth-child(7) { animation-delay: 0.35s; }
+        .section:nth-child(8) { animation-delay: 0.4s; }
+        .section:nth-child(9) { animation-delay: 0.45s; }
+        .section:nth-child(10) { animation-delay: 0.5s; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Заголовок -->
+    <div class="section" style="background: linear-gradient(135deg, #ffffff 0%, #fefce8 100%); padding-bottom: 1rem;">
+        <h1>Домашний принт-сервер на Raspberry Pi</h1>
+        <div class="subhead">
+            Полное руководство: превратите старый USB-принтер в современное сетевое устройство.
+            <br>Установка одной командой, минимальные усилия.
+        </div>
+        <p style="margin-top: 1rem;">Этот гайд проведёт вас через каждый этап: от подготовки SD-карты до печати с любого устройства в вашей сети. Всё максимально просто и структурировано.</p>
+    </div>
+
+    <!-- Что понадобится -->
+    <div class="section">
+        <h2>Что вам понадобится</h2>
+        <table>
+            <thead>
+                <tr><th>Компонент</th><th>Рекомендации</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Raspberry Pi</td><td>Любая модель с Wi-Fi (3B, 4B, Zero 2 W)</td></tr>
+                <tr><td>microSD-карта</td><td>8–32 ГБ, класс 10</td></tr>
+                <tr><td>Блок питания</td><td>5В / 2.5–3А (официальный или качественный)</td></tr>
+                <tr><td>USB-принтер</td><td>Любой рабочий принтер с USB-портом</td></tr>
+                <tr><td>Компьютер</td><td>Для подготовки карты (Windows / macOS / Linux)</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Шаг 1. Подготовка флешки -->
+    <div class="section">
+        <h2>Шаг 1: Готовим загрузочную флешку с Raspberry Pi OS Lite</h2>
+        <ul class="step-list">
+            <li><strong>Скачайте Raspberry Pi Imager</strong> с официального сайта (<a href="https://www.raspberrypi.com/software/" target="_blank">raspberrypi.com/software</a>) и установите.</li>
+            <li><strong>Запустите Imager</strong>, выберите вашу модель Raspberry Pi (например, Raspberry Pi 4).</li>
+            <li><strong>Выберите ОС</strong> → <code>Raspberry Pi OS (Lite, 64-bit)</code> (или 32-битную, если ваша модель не поддерживает 64).</li>
+            <li><strong>Нажмите на шестерёнку</strong> (настройки ОС). Это важно для «безголовой» установки:
+                <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
+                    <li>Имя хоста: <code>printserver</code></li>
+                    <li>Включить SSH → «Использовать пароль для аутентификации»</li>
+                    <li>Пользователь: <code>pi</code> (придумайте надёжный пароль)</li>
+                    <li>Настроить Wi-Fi: укажите SSID и пароль вашей сети</li>
+                </ul>
+            </li>
+            <li><strong>Выберите накопитель</strong> (вашу microSD-карту) и нажмите «Записать». Дождитесь окончания.</li>
+        </ul>
+        <div class="note">📌 <strong>Совет:</strong> Если вы не укажете Wi-Fi сейчас, подключить Pi к сети позже будет сложнее. Рекомендуем заполнить всё на этом этапе.</div>
+    </div>
+
+    <!-- Шаг 2. Подключение питания и принтера -->
+    <div class="section">
+        <h2>Шаг 2: Подключаем Raspberry Pi</h2>
+        <ul class="step-list">
+            <li>Подключите USB-принтер к Raspberry Pi.</li>
+            <li>Вставьте microSD-карту в Raspberry Pi.</li>
+            <li>Подключите блок питания — плата начнёт загрузку.</li>
+        </ul>
+        <div class="note">Подождите 1–2 минуты для первой загрузки и подключения к Wi-Fi.</div>
+    </div>
+
+    <!-- Шаг 3. Подключение по SSH -->
+    <div class="section">
+        <h2>Шаг 3: Подключаемся через SSH</h2>
+        <p>Найдите IP-адрес вашего Raspberry Pi (посмотрите в веб-интерфейсе роутера или используйте программу сканирования сети).</p>
+        <p>Откройте терминал (командную строку) и выполните:</p>
+        <pre><code>ssh pi@printserver.local</code></pre>
+        <p>Если имя не работает — используйте прямой IP:</p>
+        <pre><code>ssh pi@192.168.x.x</code></pre>
+        <p>При первом подключении введите <code>yes</code>, затем пароль пользователя <code>pi</code> (символы не отображаются).</p>
+        <div class="warning">⚠️ Если подключение не удаётся: убедитесь, что вы включили SSH в настройках Imager, и проверьте правильность Wi-Fi данных.</div>
+    </div>
+
+    <!-- Шаг 4. Запуск установочного скрипта -->
+    <div class="section">
+        <h2>Шаг 4: Автоматическая установка (одна команда)</h2>
+        <p>Теперь, когда вы подключены к Raspberry Pi по SSH, выполните команду ниже. Скрипт сам установит всё необходимое.</p>
+        <pre><code>curl -sSL https://raw.githubusercontent.com/peshk0v/Home-Print-Server/refs/heads/main/installer.sh | sudo bash</code></pre>
+        <p><strong>Что сделает скрипт:</strong> обновит систему, установит CUPS, Samba, Avahi, настроит удалённый доступ, добавит драйверы и перезапустит службы. Процесс займёт 5–15 минут.</p>
+        <div class="note">Не закрывайте терминал и не выключайте питание до появления сообщения об успешном завершении.</div>
+    </div>
+
+    <!-- Шаг 5. Добавление принтера в CUPS -->
+    <div class="section">
+        <h2>Шаг 5: Добавляем принтер через веб-интерфейс CUPS</h2>
+        <ul class="step-list">
+            <li>Откройте браузер на любом устройстве в той же сети.</li>
+            <li>Перейдите по адресу: <code>http://[IP-адрес вашего Raspberry Pi]:631</code> (например <code>http://192.168.1.100:631</code>).</li>
+            <li>Нажмите вкладку <strong>Administration</strong> → <strong>Add Printer</strong>.</li>
+            <li>Введите логин <code>pi</code> и ваш пароль.</li>
+            <li>Выберите свой USB-принтер из списка "Local Printers".</li>
+            <li>Поставьте галочку <strong>Share This Printer</strong> (общий доступ).</li>
+            <li>Выберите драйвер (CUPS предложит подходящий; при необходимости — установите драйвер из списка или выберите "Raw").</li>
+            <li>Нажмите <strong>Add Printer</strong>.</li>
+        </ul>
+        <div class="note">Если принтер не отображается: выполните в SSH команду <code>lsusb</code> — он должен быть в списке устройств. После этого перезагрузите Pi (<code>sudo reboot</code>).</div>
+    </div>
+
+    <!-- Шаг 6. Подключение клиентов -->
+    <div class="section">
+        <h2>Шаг 6: Печатаем с любых устройств</h2>
+        <p>После добавления принтер автоматически станет доступен в сети.</p>
+        <div class="tech-grid">
+            <div class="tech-card"><strong>Windows</strong> Панель управления → Устройства и принтеры → Добавить принтер → автоматическое обнаружение.</div>
+            <div class="tech-card"><strong>macOS / iOS</strong> Принтер появится в списке автоматически (Bonjour).</div>
+            <div class="tech-card"><strong>Linux</strong> Обычно находится через настройки печати (CUPS/Avahi).</div>
+            <div class="tech-card"><strong>Android</strong> Используйте Mopria Print Service или PrintHand.</div>
+        </div>
+        <p>Если автоматическое обнаружение не работает, добавьте принтер вручную по адресу:<br>
+        <code>ipp://[IP-адрес_Pi]:631/printers/[Имя_принтера]</code></p>
+    </div>
+
+    <!-- Как это работает -->
+    <div class="section">
+        <h2>Как это работает (коротко)</h2>
+        <div class="tech-grid">
+            <div class="tech-card"><strong>CUPS</strong> — сервер печати: принимает задания, управляет очередью, связывается с принтером.</div>
+            <div class="tech-card"><strong>Samba</strong> — делает принтер видимым для Windows-устройств.</div>
+            <div class="tech-card"><strong>Avahi</strong> — обеспечивает Zero‑конфигурацию (Bonjour), чтобы принтер находился автоматически.</div>
+        </div>
+        <p>Вместе эти три компонента превращают Raspberry Pi в полноценный сетевой принт-сервер, совместимый с любыми современными ОС.</p>
+    </div>
+
+    <!-- Возможные проблемы и решения -->
+    <div class="section">
+        <h2>Возможные проблемы и их решение</h2>
+        <table>
+            <thead><tr><th>Проблема</th><th>Решение</th></tr></thead>
+            <tbody>
+                <tr><td>Raspberry Pi не виден в сети</td><td>Проверьте правильность Wi-Fi данных в Imager. Подождите 2 минуты. Посмотрите список устройств в роутере.</td></tr>
+                <tr><td>Ошибка SSH "Connection refused"</td><td>Убедитесь, что включили SSH в настройках Imager перед записью. Перезапишите карту.</td></tr>
+                <tr><td>Принтер не появляется в CUPS</td><td>Выполните <code>lsusb</code> в SSH — принтер должен быть в списке. Перезагрузите Pi командой <code>sudo reboot</code>.</td></tr>
+                <tr><td>Задание в очереди, но печать не идёт</td><td>Проблема с драйвером. В веб-интерфейсе CUPS выберите другой драйвер или отправьте тестовую страницу.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Заключение -->
+    <div class="section">
+        <h2>Поздравляем!</h2>
+        <p>Вы успешно превратили Raspberry Pi в современный домашний принт-сервер. Теперь ваш старый USB-принтер доступен для всех устройств в сети: ноутбуков, смартфонов, планшетов.</p>
+        <p>Это надёжное и экономичное решение, которое не требует постоянного включённого компьютера. Наслаждайтесь удобством печати из любой точки дома!</p>
+        <div class="note">Спасибо, что воспользовались этим руководством. Удачи в ваших DIY-проектах!</div>
+    </div>
+
+    <footer>
+        Гайд создан для сообщества Raspberry Pi. Версия 1.0 · Все команды и настройки проверены на Raspberry Pi 3/4 с Raspberry Pi OS Lite.
+    </footer>
+</div>
+</body>
+</html>
+```
