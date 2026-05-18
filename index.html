@@ -1,66 +1,99 @@
-```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, initial-scale=1.0">
-    <title>Домашний принт-сервер на Raspberry Pi | Полное руководство</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Домашний принт-сервер на Raspberry Pi | Руководство</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+        }
+
+        :root {
+            --bg-body: #f8fafc;
+            --bg-section: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --border-light: #e2e8f0;
+            --code-bg: #eef2ff;
+            --code-color: #1e40af;
+            --pre-bg: #1e293b;
+            --pre-color: #e2e8f0;
+            --table-header-bg: #f1f5f9;
+            --table-border: #e9edf2;
+            --note-bg: #eff6ff;
+            --warning-bg: #fffbeb;
+            --warning-border: #f59e0b;
+            --tech-card-bg: #f9fafb;
+            --tech-card-border: #eef2ff;
+            --shadow: 0 4px 6px -2px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.03);
+            --dynamic-accent: #3b82f6;
+        }
+
+        body.dark {
+            --bg-body: #0a0c10;
+            --bg-section: #11151c;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --border-light: #1e293b;
+            --code-bg: #1e2a3a;
+            --code-color: #b9d0f0;
+            --pre-bg: #0f1722;
+            --pre-color: #cbd5e1;
+            --table-header-bg: #1a222c;
+            --table-border: #1f2a3a;
+            --note-bg: #0f1a2a;
+            --warning-bg: #1e1a10;
+            --warning-border: #f59e0b;
+            --tech-card-bg: #0f1420;
+            --tech-card-border: #1e2a3a;
+            --shadow: 0 4px 6px -2px rgba(0, 0, 0, 0.3);
         }
 
         body {
             font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: #f8fafc;
-            color: #0f172a;
+            background: var(--bg-body);
+            color: var(--text-primary);
             line-height: 1.5;
             scroll-behavior: smooth;
         }
 
-        /* Контейнер */
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 2rem 1.5rem;
         }
 
-        /* Анимация появления */
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
         .section {
-            background: white;
+            background: var(--bg-section);
             border-radius: 1.5rem;
-            box-shadow: 0 4px 6px -2px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.03);
+            box-shadow: var(--shadow);
             padding: 1.8rem 2rem;
             margin-bottom: 2rem;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            animation: fadeUp 0.5s ease-out forwards;
+            border: 1px solid var(--border-light);
             opacity: 0;
-            animation-fill-mode: forwards;
+            transform: translateY(30px);
+            transition: opacity 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1), transform 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        .section.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .section:hover {
             transform: translateY(-3px);
-            box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.15);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
-        /* Заголовки */
         h1 {
             font-size: 2.5rem;
             font-weight: 700;
-            background: linear-gradient(135deg, #1e293b, #2d3a4f);
+            background: linear-gradient(135deg, var(--dynamic-accent), color-mix(in srgb, var(--dynamic-accent) 60%, white 40%));
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
@@ -70,8 +103,8 @@
 
         .subhead {
             font-size: 1.2rem;
-            color: #475569;
-            border-left: 4px solid #3b82f6;
+            color: var(--text-secondary);
+            border-left: 4px solid var(--dynamic-accent);
             padding-left: 1rem;
             margin-top: 0.5rem;
             margin-bottom: 1rem;
@@ -82,65 +115,54 @@
             font-weight: 600;
             margin-top: 0;
             margin-bottom: 1.25rem;
-            color: #0f172a;
-            border-bottom: 2px solid #e2e8f0;
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--border-light);
             padding-bottom: 0.5rem;
         }
 
-        h3 {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin: 1.2rem 0 0.8rem 0;
-            color: #1e293b;
-        }
-
-        /* Таблицы */
         table {
             width: 100%;
             border-collapse: collapse;
-            background: #ffffff;
+            background: var(--bg-section);
             border-radius: 1rem;
             overflow: hidden;
             margin: 1rem 0;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
         }
 
         th, td {
             padding: 0.9rem 1rem;
             text-align: left;
-            border-bottom: 1px solid #e9edf2;
+            border-bottom: 1px solid var(--table-border);
         }
 
         th {
-            background-color: #f1f5f9;
+            background-color: var(--table-header-bg);
             font-weight: 600;
-            color: #1e293b;
+            color: var(--text-primary);
         }
 
         tr:last-child td {
             border-bottom: none;
         }
 
-        /* Код и команды */
         pre {
-            background: #1e293b;
-            color: #e2e8f0;
+            background: var(--pre-bg);
+            color: var(--pre-color);
             padding: 1rem 1.2rem;
             border-radius: 1rem;
             overflow-x: auto;
             font-family: 'JetBrains Mono', 'Fira Code', monospace;
             font-size: 0.9rem;
             margin: 1rem 0;
-            transition: all 0.2s;
         }
 
         code {
             font-family: 'JetBrains Mono', 'Fira Code', monospace;
-            background: #eef2ff;
+            background: var(--code-bg);
             padding: 0.2rem 0.4rem;
             border-radius: 0.5rem;
             font-size: 0.85rem;
-            color: #1e40af;
+            color: var(--code-color);
         }
 
         pre code {
@@ -149,24 +171,22 @@
             color: inherit;
         }
 
-        /* Блоки с важной информацией */
         .note {
-            background: #eff6ff;
-            border-left: 5px solid #3b82f6;
+            background: var(--note-bg);
+            border-left: 5px solid var(--dynamic-accent);
             padding: 1rem 1.2rem;
             border-radius: 1rem;
             margin: 1rem 0;
         }
 
         .warning {
-            background: #fffbeb;
-            border-left: 5px solid #f59e0b;
+            background: var(--warning-bg);
+            border-left: 5px solid var(--warning-border);
             padding: 1rem 1.2rem;
             border-radius: 1rem;
             margin: 1rem 0;
         }
 
-        /* Список шагов */
         .step-list {
             list-style: none;
             counter-reset: step-counter;
@@ -182,7 +202,7 @@
 
         .step-list li::before {
             content: counter(step-counter);
-            background: #3b82f6;
+            background: var(--dynamic-accent);
             color: white;
             font-weight: bold;
             width: 1.8rem;
@@ -197,7 +217,6 @@
             font-size: 0.9rem;
         }
 
-        /* карточки для технологий */
         .tech-grid {
             display: flex;
             gap: 1.2rem;
@@ -206,47 +225,75 @@
         }
 
         .tech-card {
-            background: #f9fafb;
+            background: var(--tech-card-bg);
             flex: 1;
             min-width: 160px;
             padding: 1rem;
             border-radius: 1.2rem;
-            border: 1px solid #eef2ff;
+            border: 1px solid var(--tech-card-border);
             transition: all 0.2s;
         }
 
         .tech-card:hover {
-            background: white;
+            background: var(--bg-section);
             box-shadow: 0 8px 20px rgba(0,0,0,0.03);
-            border-color: #cbd5e1;
+            border-color: var(--dynamic-accent);
         }
 
         .tech-card strong {
             font-size: 1.2rem;
             display: block;
             margin-bottom: 0.5rem;
-            color: #0f172a;
+            color: var(--text-primary);
         }
 
-        /* footer */
         footer {
             text-align: center;
             padding: 2rem 0.5rem 1rem;
-            color: #64748b;
-            border-top: 1px solid #e2e8f0;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-light);
             margin-top: 2rem;
         }
 
-        /* кнопки приятные */
         a {
-            color: #2563eb;
+            color: var(--dynamic-accent);
             text-decoration: none;
         }
         a:hover {
             text-decoration: underline;
         }
 
-        /* адаптив */
+        .theme-toggle {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--bg-section);
+            border: 1px solid var(--border-light);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            z-index: 1000;
+        }
+        .theme-toggle:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            border-color: var(--dynamic-accent);
+        }
+        .theme-toggle img {
+            width: 28px;
+            height: 28px;
+            filter: invert(0.2);
+        }
+        body.dark .theme-toggle img {
+            filter: invert(1);
+        }
+
         @media (max-width: 700px) {
             .container {
                 padding: 1rem;
@@ -266,25 +313,18 @@
             pre {
                 font-size: 0.8rem;
             }
+            .theme-toggle {
+                width: 48px;
+                height: 48px;
+                bottom: 1rem;
+                right: 1rem;
+            }
         }
-
-        /* анимация задержки для разделов */
-        .section:nth-child(1) { animation-delay: 0.05s; }
-        .section:nth-child(2) { animation-delay: 0.1s; }
-        .section:nth-child(3) { animation-delay: 0.15s; }
-        .section:nth-child(4) { animation-delay: 0.2s; }
-        .section:nth-child(5) { animation-delay: 0.25s; }
-        .section:nth-child(6) { animation-delay: 0.3s; }
-        .section:nth-child(7) { animation-delay: 0.35s; }
-        .section:nth-child(8) { animation-delay: 0.4s; }
-        .section:nth-child(9) { animation-delay: 0.45s; }
-        .section:nth-child(10) { animation-delay: 0.5s; }
     </style>
 </head>
 <body>
 <div class="container">
-    <!-- Заголовок -->
-    <div class="section" style="background: linear-gradient(135deg, #ffffff 0%, #fefce8 100%); padding-bottom: 1rem;">
+    <div class="section">
         <h1>Домашний принт-сервер на Raspberry Pi</h1>
         <div class="subhead">
             Полное руководство: превратите старый USB-принтер в современное сетевое устройство.
@@ -293,7 +333,6 @@
         <p style="margin-top: 1rem;">Этот гайд проведёт вас через каждый этап: от подготовки SD-карты до печати с любого устройства в вашей сети. Всё максимально просто и структурировано.</p>
     </div>
 
-    <!-- Что понадобится -->
     <div class="section">
         <h2>Что вам понадобится</h2>
         <table>
@@ -310,7 +349,6 @@
         </table>
     </div>
 
-    <!-- Шаг 1. Подготовка флешки -->
     <div class="section">
         <h2>Шаг 1: Готовим загрузочную флешку с Raspberry Pi OS Lite</h2>
         <ul class="step-list">
@@ -327,10 +365,9 @@
             </li>
             <li><strong>Выберите накопитель</strong> (вашу microSD-карту) и нажмите «Записать». Дождитесь окончания.</li>
         </ul>
-        <div class="note">📌 <strong>Совет:</strong> Если вы не укажете Wi-Fi сейчас, подключить Pi к сети позже будет сложнее. Рекомендуем заполнить всё на этом этапе.</div>
+        <div class="note">Совет: Если вы не укажете Wi-Fi сейчас, подключить Pi к сети позже будет сложнее. Рекомендуем заполнить всё на этом этапе.</div>
     </div>
 
-    <!-- Шаг 2. Подключение питания и принтера -->
     <div class="section">
         <h2>Шаг 2: Подключаем Raspberry Pi</h2>
         <ul class="step-list">
@@ -341,7 +378,6 @@
         <div class="note">Подождите 1–2 минуты для первой загрузки и подключения к Wi-Fi.</div>
     </div>
 
-    <!-- Шаг 3. Подключение по SSH -->
     <div class="section">
         <h2>Шаг 3: Подключаемся через SSH</h2>
         <p>Найдите IP-адрес вашего Raspberry Pi (посмотрите в веб-интерфейсе роутера или используйте программу сканирования сети).</p>
@@ -350,10 +386,9 @@
         <p>Если имя не работает — используйте прямой IP:</p>
         <pre><code>ssh pi@192.168.x.x</code></pre>
         <p>При первом подключении введите <code>yes</code>, затем пароль пользователя <code>pi</code> (символы не отображаются).</p>
-        <div class="warning">⚠️ Если подключение не удаётся: убедитесь, что вы включили SSH в настройках Imager, и проверьте правильность Wi-Fi данных.</div>
+        <div class="warning">Если подключение не удаётся: убедитесь, что вы включили SSH в настройках Imager, и проверьте правильность Wi-Fi данных.</div>
     </div>
 
-    <!-- Шаг 4. Запуск установочного скрипта -->
     <div class="section">
         <h2>Шаг 4: Автоматическая установка (одна команда)</h2>
         <p>Теперь, когда вы подключены к Raspberry Pi по SSH, выполните команду ниже. Скрипт сам установит всё необходимое.</p>
@@ -362,7 +397,6 @@
         <div class="note">Не закрывайте терминал и не выключайте питание до появления сообщения об успешном завершении.</div>
     </div>
 
-    <!-- Шаг 5. Добавление принтера в CUPS -->
     <div class="section">
         <h2>Шаг 5: Добавляем принтер через веб-интерфейс CUPS</h2>
         <ul class="step-list">
@@ -378,7 +412,6 @@
         <div class="note">Если принтер не отображается: выполните в SSH команду <code>lsusb</code> — он должен быть в списке устройств. После этого перезагрузите Pi (<code>sudo reboot</code>).</div>
     </div>
 
-    <!-- Шаг 6. Подключение клиентов -->
     <div class="section">
         <h2>Шаг 6: Печатаем с любых устройств</h2>
         <p>После добавления принтер автоматически станет доступен в сети.</p>
@@ -392,9 +425,8 @@
         <code>ipp://[IP-адрес_Pi]:631/printers/[Имя_принтера]</code></p>
     </div>
 
-    <!-- Как это работает -->
     <div class="section">
-        <h2>Как это работает (коротко)</h2>
+        <h2>Как это работает (кратко)</h2>
         <div class="tech-grid">
             <div class="tech-card"><strong>CUPS</strong> — сервер печати: принимает задания, управляет очередью, связывается с принтером.</div>
             <div class="tech-card"><strong>Samba</strong> — делает принтер видимым для Windows-устройств.</div>
@@ -403,7 +435,6 @@
         <p>Вместе эти три компонента превращают Raspberry Pi в полноценный сетевой принт-сервер, совместимый с любыми современными ОС.</p>
     </div>
 
-    <!-- Возможные проблемы и решения -->
     <div class="section">
         <h2>Возможные проблемы и их решение</h2>
         <table>
@@ -417,7 +448,6 @@
         </table>
     </div>
 
-    <!-- Заключение -->
     <div class="section">
         <h2>Поздравляем!</h2>
         <p>Вы успешно превратили Raspberry Pi в современный домашний принт-сервер. Теперь ваш старый USB-принтер доступен для всех устройств в сети: ноутбуков, смартфонов, планшетов.</p>
@@ -426,9 +456,123 @@
     </div>
 
     <footer>
-        Гайд создан для сообщества Raspberry Pi. Версия 1.0 · Все команды и настройки проверены на Raspberry Pi 3/4 с Raspberry Pi OS Lite.
+        Гайд создан для сообщества Raspberry Pi. Версия 2.0 · Все команды и настройки проверены на Raspberry Pi 3/4 с Raspberry Pi OS Lite.
     </footer>
 </div>
+
+<button id="themeToggleBtn" class="theme-toggle" aria-label="Переключить тему">
+    <img width="30" height="30" src="https://img.icons8.com/ios-glyphs/30/bright-moon--v1.png" alt="bright-moon--v1">
+</button>
+
+<script>
+    (function() {
+        const themeBtn = document.getElementById('themeToggleBtn');
+        const body = document.body;
+        const sections = document.querySelectorAll('.section');
+
+        function rgbToHsl(r, g, b) {
+            r /= 255, g /= 255, b /= 255;
+            const max = Math.max(r, g, b), min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+            if (max === min) {
+                h = s = 0;
+            } else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                h /= 6;
+            }
+            return [h * 360, s * 100, l * 100];
+        }
+
+        function getFirstColorFromBackground() {
+            const bgStyle = window.getComputedStyle(body).backgroundImage;
+            if (!bgStyle || bgStyle === 'none') return '#3b82f6';
+            const matches = bgStyle.match(/rgb\([^)]+\)|rgba\([^)]+\)|hsl\([^)]+\)|hsla\([^)]+\)/g);
+            if (matches && matches.length) {
+                let firstColor = matches[0];
+                if (firstColor.startsWith('rgb')) {
+                    const rgb = firstColor.match(/\d+/g);
+                    if (rgb && rgb.length >= 3) {
+                        const [h, s, l] = rgbToHsl(parseInt(rgb[0]), parseInt(rgb[1]), parseInt(rgb[2]));
+                        if (l > 60) {
+                            return `hsl(${h}, ${Math.min(80, s+20)}%, 50%)`;
+                        } else {
+                            return `hsl(${h}, ${Math.min(70, s+15)}%, 65%)`;
+                        }
+                    }
+                }
+                return firstColor;
+            }
+            return '#3b82f6';
+        }
+
+        function getRandomPastelGradient() {
+            const hue1 = Math.floor(Math.random() * 360);
+            const hue2 = (hue1 + 30 + Math.random() * 100) % 360;
+            const sat1 = 20 + Math.random() * 30;
+            const sat2 = 20 + Math.random() * 30;
+            const light1 = 80 + Math.random() * 15;
+            const light2 = 80 + Math.random() * 15;
+            const angle = Math.floor(Math.random() * 360);
+            return `linear-gradient(${angle}deg, hsl(${hue1}, ${sat1}%, ${light1}%), hsl(${hue2}, ${sat2}%, ${light2}%))`;
+        }
+
+        function getRandomDarkGradient() {
+            const hue1 = Math.floor(Math.random() * 360);
+            const hue2 = (hue1 + 20 + Math.random() * 80) % 360;
+            const sat1 = 10 + Math.random() * 15;
+            const sat2 = 10 + Math.random() * 15;
+            const light1 = 5 + Math.random() * 10;
+            const light2 = 5 + Math.random() * 10;
+            const angle = Math.floor(Math.random() * 360);
+            return `linear-gradient(${angle}deg, hsl(${hue1}, ${sat1}%, ${light1}%), hsl(${hue2}, ${sat2}%, ${light2}%))`;
+        }
+
+        function applyGradientAndAccent(gradient) {
+            body.style.background = gradient;
+            const accentColor = getFirstColorFromBackground();
+            document.documentElement.style.setProperty('--dynamic-accent', accentColor);
+        }
+
+        function setLightTheme() {
+            body.classList.remove('dark');
+            applyGradientAndAccent(getRandomPastelGradient());
+        }
+
+        function setDarkTheme() {
+            body.classList.add('dark');
+            applyGradientAndAccent(getRandomDarkGradient());
+        }
+
+        function toggleTheme() {
+            if (body.classList.contains('dark')) {
+                setLightTheme();
+            } else {
+                setDarkTheme();
+            }
+        }
+
+        function initScrollAnimations() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.15, rootMargin: "0px 0px -20px 0px" });
+            sections.forEach(section => observer.observe(section));
+        }
+
+        setLightTheme();
+        initScrollAnimations();
+        themeBtn.addEventListener('click', toggleTheme);
+    })();
+</script>
 </body>
 </html>
-```
